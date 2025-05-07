@@ -1,0 +1,91 @@
+import React, { useState } from "react"
+import { Routes, Route, useNavigate } from "react-router-dom"
+import Header from "./components/Header"
+import Home from "./pages/Home"
+import Booking from "./pages/Booking"
+import Admin from "./pages/Admin"
+import Products from './pages/Products'
+import ProductDetail from './pages/ProductDetail'
+import About from './pages/About'
+import Cart from './components/Cart'
+import Footer from './components/Footer'
+import { DataProvider } from "./context/DataContext"
+import { CartProvider } from "./context/CartContext"
+import { ThemeProvider } from "./context/ThemeContext"
+import { OrderProvider } from "./context/OrderContext"
+import { AppointmentProvider } from "./context/AppointmentContext"
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+
+function App() {
+  // Admin kimlik doğrulama durumu için hala state kullanıyoruz
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  return (
+    <ThemeProvider>
+      <DataProvider>
+        <OrderProvider>
+          <AppointmentProvider>
+            <CartProvider>
+              <div className="min-h-screen bg-base-100 text-base-content flex flex-col">
+                {/* Toast bildirimleri için container */}
+                <ToastContainer
+                  position="top-right"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss={false}
+                  draggable
+                  pauseOnHover
+                  theme="colored"
+                />
+                <Header 
+                  isAuthenticated={isAuthenticated}
+                />
+                
+                {/* Sepet bileşeni */}
+                <Cart />
+                
+                <main className="flex-grow">
+                  <Routes>
+                    {/* Ana Sayfa */}
+                    <Route path="/" element={<Home />} />
+                    
+                    {/* Rezervasyon Sayfası */}
+                    <Route path="/booking/:packageId" element={<Booking />} />
+                    
+                    {/* Admin Sayfası */}
+                    <Route 
+                      path="/admin" 
+                      element={
+                        <Admin 
+                          isAuthenticated={isAuthenticated} 
+                          setIsAuthenticated={setIsAuthenticated} 
+                        />
+                      } 
+                    />
+                    
+                    {/* Ürünler Sayfası */}
+                    <Route path="/products" element={<Products />} />
+                    
+                    {/* Ürün Detay Sayfası */}
+                    <Route path="/products/:productId" element={<ProductDetail />} />
+                    
+                    {/* Hakkımızda Sayfası */}
+                    <Route path="/about" element={<About />} />
+                  </Routes>
+                </main>
+                
+                <Footer />
+              </div>
+            </CartProvider>
+          </AppointmentProvider>
+        </OrderProvider>
+      </DataProvider>
+    </ThemeProvider>
+  )
+}
+
+export default App
