@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 // Demo envanter verileri
 const initialInventory = [
-  { 
-    id: 1, 
-    name: 'Autoshampoo Premium', 
+  {
+    id: 1,
+    name: 'Autoshampoo Premium',
     category: 'Reinigungsmittel',
     supplier: 'CleanCar GmbH',
     unit: 'Liter',
@@ -13,9 +13,9 @@ const initialInventory = [
     price: 12.50,
     lastOrdered: '2023-11-10'
   },
-  { 
-    id: 2, 
-    name: 'Felgenreiniger', 
+  {
+    id: 2,
+    name: 'Felgenreiniger',
     category: 'Reinigungsmittel',
     supplier: 'CleanCar GmbH',
     unit: 'Liter',
@@ -24,9 +24,9 @@ const initialInventory = [
     price: 18.75,
     lastOrdered: '2023-10-28'
   },
-  { 
-    id: 3, 
-    name: 'Wachspolitur', 
+  {
+    id: 3,
+    name: 'Wachspolitur',
     category: 'Pflegemittel',
     supplier: 'GlanzEffekt AG',
     unit: 'Liter',
@@ -35,9 +35,9 @@ const initialInventory = [
     price: 22.90,
     lastOrdered: '2023-11-05'
   },
-  { 
-    id: 4, 
-    name: 'Mikrofasertücher', 
+  {
+    id: 4,
+    name: 'Mikrofasertücher',
     category: 'Zubehör',
     supplier: 'AutoPflege KG',
     unit: 'Stück',
@@ -46,9 +46,9 @@ const initialInventory = [
     price: 2.50,
     lastOrdered: '2023-10-15'
   },
-  { 
-    id: 5, 
-    name: 'Insektenentferner', 
+  {
+    id: 5,
+    name: 'Insektenentferner',
     category: 'Reinigungsmittel',
     supplier: 'CleanCar GmbH',
     unit: 'Liter',
@@ -75,7 +75,7 @@ const AdminInventoryManager = () => {
     const savedInventory = localStorage.getItem('carwash_inventory');
     return savedInventory ? JSON.parse(savedInventory) : initialInventory;
   });
-  
+
   const [currentItem, setCurrentItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -83,17 +83,17 @@ const AdminInventoryManager = () => {
   const [filterCategory, setFilterCategory] = useState('All');
   const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
-  
+
   // Envanter verilerini LocalStorage'a kaydet
   useEffect(() => {
     localStorage.setItem('carwash_inventory', JSON.stringify(inventory));
   }, [inventory]);
-  
+
   // Filtrelenmiş ve sıralanmış envanter
   const filteredInventory = inventory
-    .filter(item => 
+    .filter(item =>
       (item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       item.supplier.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        item.supplier.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (filterCategory === 'All' || item.category === filterCategory)
     )
     .sort((a, b) => {
@@ -101,7 +101,7 @@ const AdminInventoryManager = () => {
       if (a[sortField] > b[sortField]) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-  
+
   // Yeni ürün ekle
   const handleAddItem = () => {
     setCurrentItem({
@@ -118,67 +118,67 @@ const AdminInventoryManager = () => {
     setIsEditing(false);
     setShowForm(true);
   };
-  
+
   // Ürün düzenle
   const handleEditItem = (item) => {
-    setCurrentItem({...item});
+    setCurrentItem({ ...item });
     setIsEditing(true);
     setShowForm(true);
   };
-  
+
   // Ürün sil
   const handleDeleteItem = (id) => {
     if (window.confirm('Sind Sie sicher, dass Sie diesen Artikel löschen möchten?')) {
       setInventory(inventory.filter(item => item.id !== id));
     }
   };
-  
+
   // Stok ekle
   const handleAddStock = (id, amount) => {
-    setInventory(inventory.map(item => 
-      item.id === id 
-        ? {...item, currentStock: item.currentStock + amount, lastOrdered: new Date().toISOString().split('T')[0]} 
+    setInventory(inventory.map(item =>
+      item.id === id
+        ? { ...item, currentStock: item.currentStock + amount, lastOrdered: new Date().toISOString().split('T')[0] }
         : item
     ));
   };
-  
+
   // Form gönderildiğinde
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (isEditing) {
       // Mevcut ürünü güncelle
-      setInventory(inventory.map(item => 
+      setInventory(inventory.map(item =>
         item.id === currentItem.id ? currentItem : item
       ));
     } else {
       // Yeni ürün ekle
       setInventory([...inventory, currentItem]);
     }
-    
+
     // Formu kapat ve değerleri sıfırla
     setShowForm(false);
     setCurrentItem(null);
   };
-  
+
   // Input değişikliklerini izle
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCurrentItem({
       ...currentItem,
-      [name]: name === 'currentStock' || name === 'minStock' || name === 'price' 
-        ? parseFloat(value) 
+      [name]: name === 'currentStock' || name === 'minStock' || name === 'price'
+        ? parseFloat(value)
         : value
     });
   };
-  
+
   // Stok durumuna göre renk belirle
   const getStockLevelColor = (current, min) => {
     if (current <= 0) return 'text-error';
     if (current <= min) return 'text-warning';
     return 'text-success';
   };
-  
+
   // Sıralama değiştir
   const handleSort = (field) => {
     if (sortField === field) {
@@ -188,54 +188,56 @@ const AdminInventoryManager = () => {
       setSortDirection('asc');
     }
   };
-  
+
   // Tarih formatını düzenle
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
     return new Date(dateString).toLocaleDateString('de-DE', options);
   };
-  
+
   // Düşük stok uyarısı
   const lowStockItems = inventory.filter(item => item.currentStock <= item.minStock);
-  
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <h2 className="text-2xl font-bold">Inventarverwaltung</h2>
         <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Artikel suchen..."
-              className="input input-bordered w-full max-w-xs pr-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+          <div className="flex gap-2">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Artikel suchen..."
+                className="input input-bordered w-full max-w-xs pr-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 absolute right-3 top-1/2 transform -translate-y-1/2 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            <select
+              className="select select-bordered"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+            >
+              <option value="All">Alle Kategorien</option>
+              {categoryOptions.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
           </div>
-          
-          <select 
-            className="select select-bordered"
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-          >
-            <option value="All">Alle Kategorien</option>
-            {categoryOptions.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-          
-          <button 
-            className="btn btn-primary" 
+
+          <button
+            className="btn btn-primary"
             onClick={handleAddItem}
           >
             Neuer Artikel
           </button>
         </div>
       </div>
-      
+
       {/* Uyarı alanı - Düşük stok */}
       {lowStockItems.length > 0 && (
         <div className="alert alert-warning">
@@ -250,7 +252,7 @@ const AdminInventoryManager = () => {
           </div>
         </div>
       )}
-      
+
       {/* Envanter özeti kartları */}
       <div className="stats stats-vertical lg:stats-horizontal shadow w-full">
         <div className="stat">
@@ -268,35 +270,35 @@ const AdminInventoryManager = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Envanter formu */}
       {showForm && (
         <div className="bg-base-200 rounded-lg p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">
             {isEditing ? 'Artikel bearbeiten' : 'Neuer Artikel'}
           </h3>
-          
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Artikelname</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="name"
                   value={currentItem?.name || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   required
                 />
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Kategorie</span>
                 </label>
-                <select 
+                <select
                   name="category"
                   value={currentItem?.category || ''}
                   onChange={handleInputChange}
@@ -307,26 +309,26 @@ const AdminInventoryManager = () => {
                   ))}
                 </select>
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Lieferant</span>
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   name="supplier"
                   value={currentItem?.supplier || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   required
                 />
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Einheit</span>
                 </label>
-                <select 
+                <select
                   name="unit"
                   value={currentItem?.unit || ''}
                   onChange={handleInputChange}
@@ -337,79 +339,79 @@ const AdminInventoryManager = () => {
                   ))}
                 </select>
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Aktueller Bestand</span>
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="currentStock"
                   value={currentItem?.currentStock || 0}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   min="0"
                   step="any"
                   required
                 />
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Mindestbestand</span>
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="minStock"
                   value={currentItem?.minStock || 0}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   min="0"
                   step="any"
                   required
                 />
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Preis pro Einheit (€)</span>
                 </label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   name="price"
                   value={currentItem?.price || 0}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   min="0"
                   step="0.01"
                   required
                 />
               </div>
-              
+
               <div className="form-control">
                 <label className="label">
                   <span className="label-text">Zuletzt bestellt</span>
                 </label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   name="lastOrdered"
                   value={currentItem?.lastOrdered || ''}
                   onChange={handleInputChange}
-                  className="input input-bordered" 
+                  className="input input-bordered"
                   required
                 />
               </div>
             </div>
-            
+
             <div className="flex justify-end space-x-3 mt-6">
-              <button 
+              <button
                 type="button"
                 className="btn btn-ghost"
                 onClick={() => setShowForm(false)}
               >
                 Abbrechen
               </button>
-              <button 
+              <button
                 type="submit"
                 className="btn btn-primary"
               >
@@ -419,14 +421,14 @@ const AdminInventoryManager = () => {
           </form>
         </div>
       )}
-      
+
       {/* Envanter tablosu */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
           <thead>
             <tr>
-              <th 
-                className="cursor-pointer" 
+              <th
+                className="cursor-pointer"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center">
@@ -439,8 +441,8 @@ const AdminInventoryManager = () => {
                 </div>
               </th>
               <th>Kategorie</th>
-              <th 
-                className="cursor-pointer hidden lg:table-cell" 
+              <th
+                className="cursor-pointer hidden lg:table-cell"
                 onClick={() => handleSort('currentStock')}
               >
                 <div className="flex items-center">
@@ -453,8 +455,8 @@ const AdminInventoryManager = () => {
                 </div>
               </th>
               <th className="hidden lg:table-cell">Einheit</th>
-              <th 
-                className="cursor-pointer" 
+              <th
+                className="cursor-pointer"
                 onClick={() => handleSort('price')}
               >
                 <div className="flex items-center">
@@ -498,7 +500,7 @@ const AdminInventoryManager = () => {
                           <li><button onClick={() => handleAddStock(item.id, 10)}>+10 hinzufügen</button></li>
                         </ul>
                       </div>
-                      <button 
+                      <button
                         onClick={() => handleEditItem(item)}
                         className="btn btn-square btn-sm btn-ghost"
                       >
