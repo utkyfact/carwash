@@ -264,12 +264,12 @@ const AdminPackageManager = () => {
   
   // Paketliste rendern
   return (
-    <div className="bg-base-100 rounded-lg shadow-md overflow-hidden mb-8">
-      <div className="flex justify-between items-center p-6 border-b">
-        <h2 className="text-xl font-semibold">Waschpakete</h2>
+    <div className="bg-base-100 rounded-lg overflow-hidden mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b gap-4">
+        <h2 className="text-md md:text-xl font-semibold">Waschpakete</h2>
         <button
           onClick={handleAddPackage}
-          className="flex items-center py-2 px-4 bg-success rounded-md text-success-content hover:bg-success-focus transition-colors cursor-pointer"
+          className="flex items-center py-1 md:py-2 px-2 md:px-4 bg-success rounded-md text-success-content hover:bg-success-focus transition-colors cursor-pointer"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

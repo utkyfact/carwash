@@ -165,7 +165,7 @@ const AdminMarketingManager = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-2xl font-bold">Marketing & Promotions</h2>
+        <h2 className="text-md md:text-lg font-bold">Marketing & Promotions</h2>
         <div className="flex gap-2">
           <select 
             className="select select-bordered"

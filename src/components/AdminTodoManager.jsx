@@ -151,10 +151,10 @@ const AdminTodoManager = () => {
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Notizen und Aufgaben</h2>
+      <h2 className="text-md md:text-lg font-bold">Notizen und Aufgaben</h2>
       
       {/* Todo Ekleme Formu */}
-      <form onSubmit={handleAddTodo} className="flex gap-2">
+      <form onSubmit={handleAddTodo} className="flex flex-col md:flex-row gap-2">
         <input
           type="text"
           value={newTodo}

@@ -155,20 +155,20 @@ const AdminAboutManager = () => {
   const isFormValid = validateForm();
   
   return (
-    <div className="bg-base-100 rounded-lg shadow-md overflow-hidden mb-8">
-      <div className="flex justify-between items-center p-6 border-b">
-        <h2 className="text-xl font-semibold">Über Uns Seite Verwaltung</h2>
+    <div className="bg-base-100 rounded-lg overflow-hidden mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center p-4 md:p-6 border-b gap-4">
+        <h2 className="text-md md:text-xl font-semibold">Über Uns Seite Verwaltung</h2>
         <div className="flex gap-2">
           <button
             onClick={() => setPreviewMode(!previewMode)}
-            className="py-2 px-4 bg-info rounded-md text-info-content hover:bg-info-focus transition-colors cursor-pointer"
+            className="py-1 md:py-2 px-2 md:px-4 bg-info rounded-md text-info-content hover:bg-info-focus transition-colors cursor-pointer"
           >
             {previewMode ? 'Bearbeitungsmodus' : 'Vorschau'}
           </button>
           <button
             onClick={handleSave}
             disabled={!isFormValid}
-            className={`py-2 px-4 rounded-md text-primary-content cursor-pointer ${
+            className={`py-1 md:py-2 px-2 md:px-4 rounded-md text-primary-content cursor-pointer ${
               isFormValid 
                 ? 'bg-primary hover:bg-primary-focus' 
                 : 'bg-base-300 cursor-not-allowed'

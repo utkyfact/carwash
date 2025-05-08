@@ -169,8 +169,8 @@ const Admin = ({ isAuthenticated, setIsAuthenticated, onNavigateHome }) => {
   // Giriş formunu render et
   if (!isAuthenticated) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-md mx-auto bg-base-100 p-8 rounded-lg shadow-md">
+      <div className="container mx-auto px-1 md:px-4 py-16">
+        <div className="max-w-md mx-auto bg-base-100 p-4 md:p-8 rounded-lg shadow-md">
           <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
           
           {error && (
@@ -379,7 +379,7 @@ const Admin = ({ isAuthenticated, setIsAuthenticated, onNavigateHome }) => {
         </div>
         
         {/* Tab içerikleri */}
-        <div className="bg-base-100 rounded-lg p-6 shadow-md">
+        <div className="bg-base-100 rounded-lg p-2 md:p-6 shadow-md">
           {activeTab === 'dashboard' && <AdminDashboard />}
           {activeTab === 'employees' && <AdminEmployeeManager />}
           {activeTab === 'customers' && <AdminCustomerManager />}

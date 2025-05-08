@@ -59,10 +59,10 @@ const AdminOrderManager = () => {
   
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Bestellungsverwaltung</h2>
+      <h2 className="text-lg md:text-2xl font-bold">Bestellungsverwaltung</h2>
       
       {/* Durum filtreleri */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
         {Object.values(ORDER_STATUS).map(status => (
           <button
             key={status}

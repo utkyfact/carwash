@@ -212,7 +212,7 @@ const AdminWeatherManager = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h2 className="text-2xl font-bold">Wettervorhersage</h2>
+        <h2 className="text-lg md:text-2xl font-bold">Wettervorhersage</h2>
         
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="dropdown dropdown-end">
@@ -222,7 +222,7 @@ const AdminWeatherManager = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </label>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <ul tabIndex={0} className="dropdown-content w-full z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
               {locations.map(loc => (
                 <li key={loc.id}>
                   <button 
@@ -319,9 +319,6 @@ const AdminWeatherManager = () => {
         <div>
           <h3 className="text-lg font-semibold">
             {activeLocation.name}
-            <span className="text-sm font-normal opacity-70 ml-2">
-              Lat: {activeLocation.lat.toFixed(4)}, Lon: {activeLocation.lon.toFixed(4)}
-            </span>
           </h3>
         </div>
         <div className="text-sm opacity-70">
@@ -445,10 +442,6 @@ const AdminWeatherManager = () => {
             {locations.map(location => (
               <tr key={location.id}>
                 <td>{location.name}</td>
-                <td>
-                  <div>Lat: {location.lat.toFixed(4)}</div>
-                  <div>Lon: {location.lon.toFixed(4)}</div>
-                </td>
                 <td>
                   <span className={`badge ${location.isActive ? 'badge-success' : 'badge-ghost'}`}>
                     {location.isActive ? 'Aktiv' : 'Inaktiv'}
