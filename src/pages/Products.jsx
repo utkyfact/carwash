@@ -59,8 +59,11 @@ const Products = ({ onSelectProduct }) => {
             <a 
               key={product.id} 
               className="bg-base-100 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-full"
-              href={`/products/${product.id}`}
-              rel="noopener noreferrer"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = `/products/${product.id}`;
+              }}
+              style={{ textDecoration: 'none' }}
             >
               <div className="h-48 overflow-hidden">
                 <img 
