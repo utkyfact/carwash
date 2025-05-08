@@ -20,7 +20,7 @@ const initialProductData = [
     name: 'Jant Temizleyici',
     price: 12.50,
     description: 'Zorlu jant kirlerini kolayca çözen profesyonel temizleyici.',
-    image: 'https://images.unsplash.com/photo-1580990739081-ad372869dafe?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+    image: 'https://plus.unsplash.com/premium_photo-1661693484578-6497e90fecd6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     stock: 18,
     category: 'Temizlik Ürünleri',
     features: [

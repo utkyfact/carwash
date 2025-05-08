@@ -66,7 +66,7 @@ const Home = () => {
 
         {/* Slider kontrolleri */}
         <button
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-base-100 bg-opacity-30 opacity-50 rounded-full p-2 text-base-content hover:opacity-70 transition-all cursor-pointer"
+          className="absolute left-4 top-88 md:top-1/2 transform -translate-y-1/2 bg-base-100 bg-opacity-30 opacity-50 rounded-full p-2 text-base-content hover:opacity-70 hover:scale-110 transition-all cursor-pointer"
           onClick={prevSlide}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +74,7 @@ const Home = () => {
           </svg>
         </button>
         <button
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-base-100 bg-opacity-30 opacity-50 rounded-full p-2 text-base-content hover:opacity-70 transition-all cursor-pointer"
+          className="absolute right-4 top-88 md:top-1/2 transform -translate-y-1/2 bg-base-100 bg-opacity-30 opacity-50 rounded-full p-2 text-base-content hover:opacity-70 hover:scale-110 transition-all cursor-pointer"
           onClick={nextSlide}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -88,7 +88,7 @@ const Home = () => {
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-base-100 scale-125' : 'bg-base-100 bg-opacity-50'
+              className={`w-3 h-3 rounded-full cursor-pointer transition-all ${index === currentSlide ? 'bg-base-100 scale-125' : 'bg-base-100 bg-opacity-50'
                 }`}
             />
           ))}

@@ -58,10 +58,10 @@ const Header = ({ isAuthenticated }) => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center cursor-pointer">
+            <Link to="/" className="flex items-end cursor-pointer">
               <img src="/wolkeLogoTransparent.png" alt="Wolke Carwash Logo" className="w-20 h-20 rounded-full " />
-              <span className="text-2xl font-bold hidden md:block">WOLKE</span>
-              <span className="ml-1 text-accent font-bold hidden md:block">CARWASH</span>
+              {/* <span className="text-2xl font-bold hidden md:block">WOLKE</span> */}
+              <span className="mb-4 text-accent font-bold">CARWASH</span>
             </Link>
           </div>
 

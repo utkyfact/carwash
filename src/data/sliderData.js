@@ -2,7 +2,7 @@
 const initialSliderData = [
   {
     id: 'slider-1',
-    url: 'https://images.unsplash.com/photo-1572635148818-ef6bbc401acb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80',
+    url: 'https://images.unsplash.com/photo-1694678505383-676d78ea3b96?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     title: 'Profesyonel Araba Yıkama',
     description: 'Aracınız bizimle güvende, parlaklığı uzun süre kalıcı'
   },
