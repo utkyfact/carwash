@@ -20,6 +20,9 @@ const ProductDetail = () => {
   const whyRef = useRef(null);
   
   useEffect(() => {
+    // Sayfa yüklendiğinde description accordion'unu açık tut
+    setActiveAccordion('description');
+    
     // Produktdaten laden
     if (productData.length > 0) {
       const foundProduct = productData.find(p => p.id === productId);
@@ -246,20 +249,24 @@ const ProductDetail = () => {
             >
               <h2 className="text-xl font-bold text-base-content">Produktbeschreibung</h2>
               <svg 
-                className={`w-6 h-6 text-base-content transform ${activeAccordion === 'description' ? 'rotate-180' : ''} transition-transform duration-300`}
+                className={`w-6 h-6 text-base-content transform transition-transform duration-300`}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                {activeAccordion === 'description' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                )}
               </svg>
             </button>
             
             <div 
               ref={descriptionRef}
-              className="overflow-hidden transition-all duration-500 ease-in-out"
+              className="overflow-hidden transition-all duration-300 ease-in-out"
               style={{
-                maxHeight: activeAccordion === 'description' ? getMaxHeight(descriptionRef) : '0',
+                maxHeight: activeAccordion === 'description' ? '500px' : '0',
                 opacity: activeAccordion === 'description' ? 1 : 0
               }}
             >
@@ -281,20 +288,24 @@ const ProductDetail = () => {
             >
               <h2 className="text-xl font-bold text-base-content">Produkteigenschaften</h2>
               <svg 
-                className={`w-6 h-6 text-base-content transform ${activeAccordion === 'features' ? 'rotate-180' : ''} transition-transform duration-300`}
+                className={`w-6 h-6 text-base-content transform transition-transform duration-300`}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                {activeAccordion === 'features' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                )}
               </svg>
             </button>
             
             <div 
               ref={featuresRef}
-              className="overflow-hidden transition-all duration-500 ease-in-out"
+              className="overflow-hidden transition-all duration-300 ease-in-out"
               style={{
-                maxHeight: activeAccordion === 'features' ? getMaxHeight(featuresRef) : '0',
+                maxHeight: activeAccordion === 'features' ? '500px' : '0',
                 opacity: activeAccordion === 'features' ? 1 : 0
               }}
             >
@@ -325,20 +336,24 @@ const ProductDetail = () => {
             >
               <h2 className="text-xl font-bold text-base-content">Warum WOLKE CARWASH Produkte?</h2>
               <svg 
-                className={`w-6 h-6 text-base-content transform ${activeAccordion === 'why' ? 'rotate-180' : ''} transition-transform duration-300`}
+                className={`w-6 h-6 text-base-content transform transition-transform duration-300`}
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                {activeAccordion === 'why' ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                )}
               </svg>
             </button>
             
             <div 
               ref={whyRef}
-              className="overflow-hidden transition-all duration-500 ease-in-out"
+              className="overflow-hidden transition-all duration-300 ease-in-out"
               style={{
-                maxHeight: activeAccordion === 'why' ? getMaxHeight(whyRef) : '0',
+                maxHeight: activeAccordion === 'why' ? '500px' : '0',
                 opacity: activeAccordion === 'why' ? 1 : 0
               }}
             >
