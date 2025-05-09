@@ -1,7 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { useData } from '../context/DataContext';
+import { useAppointment } from '../context/AppointmentContext';
+
+// Verfügbare Zeiten erstellen (9:00 - 19:00 Uhr, in 30-Minuten-Intervallen)
+const generateAvailableTimes = () => {
+  const times = [];
+  const startHour = 9;
+  const endHour = 19;
+  
+  for (let hour = startHour; hour <= endHour; hour++) {
+    times.push(`${hour}:00`);
+    if (hour < endHour) {
+      times.push(`${hour}:30`);
+    }
+  }
+  
+  return times;
+};
 
 const Cart = () => {
   const { 
@@ -17,7 +34,9 @@ const Cart = () => {
   } = useCart();
   
   const { createOrder } = useOrder();
+  const { createAppointment } = useAppointment();
   const { washPackages } = useData();
+  const availableTimes = generateAvailableTimes();
   
   // Kullanıcı bilgileri için state
   const [isCheckout, setIsCheckout] = useState(false);
@@ -31,12 +50,36 @@ const Cart = () => {
   const [showPackageSelect, setShowPackageSelect] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState('');
   const [existingPackageInCart, setExistingPackageInCart] = useState(null);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const datePickerRef = useRef(null);
+
+  // Bugünün tarihini al (min değeri için)
+  const today = new Date().toISOString().split('T')[0];
 
   // Sepette paket var mı kontrol et
   useEffect(() => {
     const packageItem = cartItems.find(item => item.type === 'package');
     setExistingPackageInCart(packageItem);
   }, [cartItems]);
+  
+  // Tarih seçimi dışına tıklandığında tarih seçiciyi kapatan listener
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+        // Tarih seçici dışına tıklandığında input'u blur yapar
+        const dateInput = datePickerRef.current.querySelector('input[type="date"]');
+        if (dateInput) {
+          dateInput.blur();
+        }
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   
   // Form değişiklikleri
   const handleInputChange = (e) => {
@@ -52,15 +95,47 @@ const Cart = () => {
     setIsCheckout(true);
   };
   
+  // Form verilerini sıfırla
+  const resetForm = () => {
+    setUserInfo({
+      name: '',
+      email: '',
+      phone: '',
+      address: ''
+    });
+  };
+  
   // Sipariş tamamlama
   const handlePlaceOrder = () => {
+    // Paket ürünlerini ve normal ürünleri ayır
+    const packageItems = cartItems.filter(item => item.type === 'package');
+    
     // Sipariş oluştur
     createOrder(cartItems, userInfo, totalPrice);
+    
+    // Paket ürünlerini randevu olarak ekle
+    packageItems.forEach(packageItem => {
+      const packageData = {
+        name: userInfo.name,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        carModel: "Sipariş üzerinden eklendi", // Araç modeli bilgisi olmadığı için varsayılan bir değer
+        date: packageItem.appointmentDate,
+        time: packageItem.appointmentTime,
+        agreeTerms: true
+      };
+      
+      // Randevu oluştur
+      createAppointment(packageData, packageItem.id);
+    });
     
     // Sepeti temizle ve başarılı mesajını göster
     clearCart();
     setIsCheckout(false);
     setOrderSuccess(true);
+    
+    // Form verilerini sıfırla
+    resetForm();
     
     // 3 saniye sonra başarılı mesajını kapat
     setTimeout(() => {
@@ -81,9 +156,24 @@ const Cart = () => {
     setSelectedPackageId(e.target.value);
   };
 
+  // Tarih değiştiğinde
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  // Saat değiştiğinde
+  const handleTimeChange = (e) => {
+    setSelectedTime(e.target.value);
+  };
+
+  // Sepete paket eklemek için gerekli kontrol
+  const isPackageFormValid = () => {
+    return selectedPackageId && selectedDate && selectedTime;
+  };
+
   // Paketi sepete ekle
   const handleAddPackageToCart = () => {
-    if (!selectedPackageId) return;
+    if (!isPackageFormValid()) return;
     
     const selectedPackage = washPackages.find(pkg => pkg.id === selectedPackageId);
     if (selectedPackage) {
@@ -94,12 +184,95 @@ const Cart = () => {
         price: parseFloat(selectedPackage.price),
         image: `https://placehold.co/200x200/3B82F6/FFFFFF/png?text=${selectedPackage.name}`, 
         type: 'package',
-        features: selectedPackage.features
+        features: selectedPackage.features,
+        appointmentDate: selectedDate,
+        appointmentTime: selectedTime
       };
       
       addToCart(packageToAdd);
       setSelectedPackageId('');
+      setSelectedDate('');
+      setSelectedTime('');
       setShowPackageSelect(false);
+    }
+  };
+
+  // Sepette paket ekle kısmını kapat/aç
+  const handleBackToPackageSelect = () => {
+    setSelectedDate('');
+    setSelectedTime('');
+    setSelectedPackageId('');
+  };
+  
+  // UI aşamalarını belirle
+  const renderPackageSelectStep = () => {
+    if (!selectedPackageId) {
+      // Paket seçim aşaması
+      return (
+        <div>
+          <label className="block text-base-content mb-2 text-sm">Paket auswählen</label>
+          <select 
+            value={selectedPackageId} 
+            onChange={handlePackageChange}
+            className="w-full px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">Bitte wählen</option>
+            {washPackages.map(pkg => (
+              <option key={pkg.id} value={pkg.id}>
+                {pkg.name} - {pkg.price}€
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    } else {
+      // Tarih ve saat seçim aşaması
+      return (
+        <>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold">{washPackages.find(pkg => pkg.id === selectedPackageId)?.name} Paket</h3>
+            <button 
+              onClick={handleBackToPackageSelect} 
+              className="text-primary text-sm hover:underline cursor-pointer"
+            >
+              Paket değiştir
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            {/* Tarih Seçimi */}
+            <div ref={datePickerRef} className="relative">
+              <label className="block text-base-content mb-2 text-sm">Datum auswählen</label>
+              <input 
+                type="date" 
+                value={selectedDate}
+                onChange={handleDateChange}
+                min={today}
+                className="w-full px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                onClick={(e) => {
+                  // Tarih seçicinin kapanmasını önlemek için olayın yayılmasını durdurun
+                  e.stopPropagation();
+                }}
+              />
+            </div>
+            
+            {/* Saat Seçimi */}
+            <div>
+              <label className="block text-base-content mb-2 text-sm">Zeit auswählen</label>
+              <select
+                value={selectedTime}
+                onChange={handleTimeChange}
+                className="w-full bg-base-100 px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="">Bitte wählen</option>
+                {availableTimes.map(time => (
+                  <option key={time} value={time}>{time}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </>
+      );
     }
   };
   
@@ -216,22 +389,12 @@ const Cart = () => {
                   </div>
                   
                   {showPackageSelect && !existingPackageInCart && (
-                    <div className="mt-3">
-                      <select 
-                        value={selectedPackageId} 
-                        onChange={handlePackageChange}
-                        className="w-full px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
-                      >
-                        <option value="">Paket auswählen</option>
-                        {washPackages.map(pkg => (
-                          <option key={pkg.id} value={pkg.id}>
-                            {pkg.name} - {pkg.price}€
-                          </option>
-                        ))}
-                      </select>
+                    <div className="mt-3 space-y-3">
+                      {renderPackageSelectStep()}
+                      
                       <button 
                         onClick={handleAddPackageToCart}
-                        disabled={!selectedPackageId}
+                        disabled={!isPackageFormValid()}
                         className="mt-2 w-full py-2 bg-primary text-primary-content rounded-md hover:bg-primary-focus transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Zum Warenkorb hinzufügen
@@ -286,6 +449,11 @@ const Cart = () => {
                         <p className="text-primary font-semibold mt-1">
                           {item.price} €
                         </p>
+                        {item.type === 'package' && item.appointmentDate && item.appointmentTime && (
+                          <p className="text-sm text-base-content/70 mt-1">
+                            Termin: {new Date(item.appointmentDate).toLocaleDateString('de-DE')} - {item.appointmentTime} Uhr
+                          </p>
+                        )}
                         {item.type !== 'package' && (
                           <div className="flex items-center mt-2">
                             <span className="text-sm text-base-content mr-2">Menge:</span>

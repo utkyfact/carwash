@@ -1,13 +1,39 @@
 import React, { useState } from 'react';
 import { useAppointment } from '../context/AppointmentContext';
+import Pagination from './Pagination';
 
 const AdminAppointmentManager = () => {
   const { appointments, updateAppointmentStatus, APPOINTMENT_STATUS } = useAppointment();
   const [activeStatus, setActiveStatus] = useState(APPOINTMENT_STATUS.PENDING);
   const [appointmentDetail, setAppointmentDetail] = useState(null);
   
+  // Pagination için state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
   // Duruma göre filtrelenmiş randevular
   const filteredAppointments = appointments.filter(appointment => appointment.status === activeStatus);
+  
+  // Toplam sayfa sayısı
+  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
+  
+  // Şu anki sayfada gösterilecek randevular
+  const getCurrentPageItems = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return filteredAppointments.slice(indexOfFirstItem, indexOfLastItem);
+  };
+  
+  // Sayfa değiştiğinde
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  
+  // Durum değiştiğinde sayfa 1'e dön
+  const handleStatusChange = (status) => {
+    setActiveStatus(status);
+    setCurrentPage(1);
+  };
   
   // Randevu detayını göster
   const showAppointmentDetail = (appointment) => {
@@ -55,6 +81,9 @@ const AdminAppointmentManager = () => {
     return new Date(dateString).toLocaleDateString('de-DE', options);
   };
   
+  // Şu anki sayfadaki randevular
+  const currentAppointments = getCurrentPageItems();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-lg md:text-2xl font-bold">Terminverwaltung</h2>
@@ -64,7 +93,7 @@ const AdminAppointmentManager = () => {
         {Object.values(APPOINTMENT_STATUS).map(status => (
           <button
             key={status}
-            onClick={() => setActiveStatus(status)}
+            onClick={() => handleStatusChange(status)}
             className={`px-4 py-2 rounded-md transition-colors cursor-pointer ${
               activeStatus === status 
                 ? 'bg-primary text-primary-content' 
@@ -86,75 +115,84 @@ const AdminAppointmentManager = () => {
             Keine Termine mit diesem Status vorhanden.
           </div>
         ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-base-200">
-                <th className="px-4 py-3 text-left">Termin-Nr.</th>
-                <th className="px-4 py-3 text-left">Datum & Uhrzeit</th>
-                <th className="px-4 py-3 text-left">Kunde</th>
-                <th className="px-4 py-3 text-left">Paket</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAppointments.map(appointment => (
-                <tr key={appointment.id} className="border-b border-base-200 hover:bg-base-100/50">
-                  <td className="px-4 py-3">{appointment.id.split('-')[1]}</td>
-                  <td className="px-4 py-3">
-                    {formatDate(appointment.appointmentDate)} {appointment.appointmentTime}
-                  </td>
-                  <td className="px-4 py-3">{appointment.customerInfo.name}</td>
-                  <td className="px-4 py-3">{appointment.package.name} - {appointment.package.price}€</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(appointment.status)}`}>
-                      {appointment.status === APPOINTMENT_STATUS.PENDING && 'Ausstehend'}
-                      {appointment.status === APPOINTMENT_STATUS.CONFIRMED && 'Bestätigt'}
-                      {appointment.status === APPOINTMENT_STATUS.COMPLETED && 'Abgeschlossen'}
-                      {appointment.status === APPOINTMENT_STATUS.CANCELLED && 'Storniert'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => showAppointmentDetail(appointment)}
-                        className="px-3 py-1 bg-base-300 hover:bg-base-400 rounded-md text-xs cursor-pointer"
-                      >
-                        Details
-                      </button>
-                      
-                      {appointment.status === APPOINTMENT_STATUS.PENDING && (
-                        <button 
-                          onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.CONFIRMED)}
-                          className="px-3 py-1 bg-success hover:bg-success-focus text-success-content rounded-md text-xs cursor-pointer"
-                        >
-                          Bestätigen
-                        </button>
-                      )}
-                      
-                      {appointment.status === APPOINTMENT_STATUS.CONFIRMED && (
-                        <button 
-                          onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.COMPLETED)}
-                          className="px-3 py-1 bg-info hover:bg-info-focus text-info-content rounded-md text-xs cursor-pointer"
-                        >
-                          Abschließen
-                        </button>
-                      )}
-                      
-                      {appointment.status !== APPOINTMENT_STATUS.CANCELLED && appointment.status !== APPOINTMENT_STATUS.COMPLETED && (
-                        <button 
-                          onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.CANCELLED)}
-                          className="px-3 py-1 bg-error hover:bg-error-focus text-error-content rounded-md text-xs cursor-pointer"
-                        >
-                          Stornieren
-                        </button>
-                      )}
-                    </div>
-                  </td>
+          <>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-base-200">
+                  <th className="px-4 py-3 text-left">Termin-Nr.</th>
+                  <th className="px-4 py-3 text-left">Datum & Uhrzeit</th>
+                  <th className="px-4 py-3 text-left">Kunde</th>
+                  <th className="px-4 py-3 text-left">Paket</th>
+                  <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Aktionen</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentAppointments.map(appointment => (
+                  <tr key={appointment.id} className="border-b border-base-200 hover:bg-base-100/50">
+                    <td className="px-4 py-3">{appointment.id.split('-')[1]}</td>
+                    <td className="px-4 py-3">
+                      {formatDate(appointment.appointmentDate)} {appointment.appointmentTime}
+                    </td>
+                    <td className="px-4 py-3">{appointment.customerInfo.name}</td>
+                    <td className="px-4 py-3">{appointment.package.name} - {appointment.package.price}€</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(appointment.status)}`}>
+                        {appointment.status === APPOINTMENT_STATUS.PENDING && 'Ausstehend'}
+                        {appointment.status === APPOINTMENT_STATUS.CONFIRMED && 'Bestätigt'}
+                        {appointment.status === APPOINTMENT_STATUS.COMPLETED && 'Abgeschlossen'}
+                        {appointment.status === APPOINTMENT_STATUS.CANCELLED && 'Storniert'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => showAppointmentDetail(appointment)}
+                          className="px-3 py-1 bg-base-300 hover:bg-base-400 rounded-md text-xs cursor-pointer"
+                        >
+                          Details
+                        </button>
+                        
+                        {appointment.status === APPOINTMENT_STATUS.PENDING && (
+                          <button 
+                            onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.CONFIRMED)}
+                            className="px-3 py-1 bg-success hover:bg-success-focus text-success-content rounded-md text-xs cursor-pointer"
+                          >
+                            Bestätigen
+                          </button>
+                        )}
+                        
+                        {appointment.status === APPOINTMENT_STATUS.CONFIRMED && (
+                          <button 
+                            onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.COMPLETED)}
+                            className="px-3 py-1 bg-info hover:bg-info-focus text-info-content rounded-md text-xs cursor-pointer"
+                          >
+                            Abschließen
+                          </button>
+                        )}
+                        
+                        {appointment.status !== APPOINTMENT_STATUS.CANCELLED && appointment.status !== APPOINTMENT_STATUS.COMPLETED && (
+                          <button 
+                            onClick={() => handleUpdateStatus(appointment.id, APPOINTMENT_STATUS.CANCELLED)}
+                            className="px-3 py-1 bg-error hover:bg-error-focus text-error-content rounded-md text-xs cursor-pointer"
+                          >
+                            Stornieren
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {/* Pagination */}
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
       

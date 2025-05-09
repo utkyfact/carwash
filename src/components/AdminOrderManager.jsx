@@ -1,13 +1,39 @@
 import React, { useState } from 'react';
 import { useOrder } from '../context/OrderContext';
+import Pagination from './Pagination';
 
 const AdminOrderManager = () => {
   const { orders, updateOrderStatus, ORDER_STATUS } = useOrder();
   const [activeStatus, setActiveStatus] = useState(ORDER_STATUS.PENDING);
   const [orderDetail, setOrderDetail] = useState(null);
   
+  // Pagination için state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
   // Duruma göre filtrelenmiş siparişler
   const filteredOrders = orders.filter(order => order.status === activeStatus);
+  
+  // Toplam sayfa sayısı
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  
+  // Şu anki sayfada gösterilecek siparişler
+  const getCurrentPageItems = () => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+  };
+  
+  // Sayfa değiştiğinde
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  
+  // Durum değiştiğinde sayfa 1'e dön
+  const handleStatusChange = (status) => {
+    setActiveStatus(status);
+    setCurrentPage(1);
+  };
   
   // Sipariş detayını göster
   const showOrderDetail = (order) => {
@@ -57,6 +83,9 @@ const AdminOrderManager = () => {
     return new Date(dateString).toLocaleDateString('de-DE', options);
   };
   
+  // Şu anki sayfadaki siparişler
+  const currentOrders = getCurrentPageItems();
+  
   return (
     <div className="space-y-6">
       <h2 className="text-lg md:text-2xl font-bold">Bestellungsverwaltung</h2>
@@ -66,7 +95,7 @@ const AdminOrderManager = () => {
         {Object.values(ORDER_STATUS).map(status => (
           <button
             key={status}
-            onClick={() => setActiveStatus(status)}
+            onClick={() => handleStatusChange(status)}
             className={`px-4 py-2 rounded-md transition-colors cursor-pointer ${
               activeStatus === status 
                 ? 'bg-primary text-primary-content' 
@@ -88,73 +117,82 @@ const AdminOrderManager = () => {
             Keine Bestellungen in diesem Status vorhanden.
           </div>
         ) : (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-base-200">
-                <th className="px-4 py-3 text-left">Bestellnr.</th>
-                <th className="px-4 py-3 text-left">Datum</th>
-                <th className="px-4 py-3 text-left">Kunde</th>
-                <th className="px-4 py-3 text-left">Betrag</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Aktionen</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map(order => (
-                <tr key={order.id} className="border-b border-base-200 hover:bg-base-100/50">
-                  <td className="px-4 py-3">{order.id.split('-')[1]}</td>
-                  <td className="px-4 py-3">{formatDate(order.createdAt)}</td>
-                  <td className="px-4 py-3">{order.userInfo.name}</td>
-                  <td className="px-4 py-3">{order.totalAmount.toFixed(2)} €</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(order.status)}`}>
-                      {order.status === ORDER_STATUS.PENDING && 'Ausstehend'}
-                      {order.status === ORDER_STATUS.CONFIRMED && 'Bestätigt'}
-                      {order.status === ORDER_STATUS.DELIVERED && 'Geliefert'}
-                      {order.status === ORDER_STATUS.CANCELLED && 'Storniert'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => showOrderDetail(order)}
-                        className="px-3 py-1 bg-base-300 hover:bg-base-400 rounded-md text-xs cursor-pointer"
-                      >
-                        Details
-                      </button>
-                      
-                      {order.status === ORDER_STATUS.PENDING && (
-                        <button 
-                          onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.CONFIRMED)}
-                          className="px-3 py-1 bg-success hover:bg-success-focus text-success-content rounded-md text-xs cursor-pointer"
-                        >
-                          Bestätigen
-                        </button>
-                      )}
-                      
-                      {order.status === ORDER_STATUS.CONFIRMED && (
-                        <button 
-                          onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.DELIVERED)}
-                          className="px-3 py-1 bg-info hover:bg-info-focus text-info-content rounded-md text-xs cursor-pointer"
-                        >
-                          Als geliefert markieren
-                        </button>
-                      )}
-                      
-                      {order.status !== ORDER_STATUS.CANCELLED && order.status !== ORDER_STATUS.DELIVERED && (
-                        <button 
-                          onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.CANCELLED)}
-                          className="px-3 py-1 bg-error hover:bg-error-focus text-error-content rounded-md text-xs cursor-pointer"
-                        >
-                          Stornieren
-                        </button>
-                      )}
-                    </div>
-                  </td>
+          <>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-base-200">
+                  <th className="px-4 py-3 text-left">Bestellnr.</th>
+                  <th className="px-4 py-3 text-left">Datum</th>
+                  <th className="px-4 py-3 text-left">Kunde</th>
+                  <th className="px-4 py-3 text-left">Betrag</th>
+                  <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Aktionen</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentOrders.map(order => (
+                  <tr key={order.id} className="border-b border-base-200 hover:bg-base-100/50">
+                    <td className="px-4 py-3">{order.id.split('-')[1]}</td>
+                    <td className="px-4 py-3">{formatDate(order.createdAt)}</td>
+                    <td className="px-4 py-3">{order.userInfo.name}</td>
+                    <td className="px-4 py-3">{order.totalAmount.toFixed(2)} €</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 rounded-full text-xs ${getStatusBadgeClass(order.status)}`}>
+                        {order.status === ORDER_STATUS.PENDING && 'Ausstehend'}
+                        {order.status === ORDER_STATUS.CONFIRMED && 'Bestätigt'}
+                        {order.status === ORDER_STATUS.DELIVERED && 'Geliefert'}
+                        {order.status === ORDER_STATUS.CANCELLED && 'Storniert'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => showOrderDetail(order)}
+                          className="px-3 py-1 bg-base-300 hover:bg-base-400 rounded-md text-xs cursor-pointer"
+                        >
+                          Details
+                        </button>
+                        
+                        {order.status === ORDER_STATUS.PENDING && (
+                          <button 
+                            onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.CONFIRMED)}
+                            className="px-3 py-1 bg-success hover:bg-success-focus text-success-content rounded-md text-xs cursor-pointer"
+                          >
+                            Bestätigen
+                          </button>
+                        )}
+                        
+                        {order.status === ORDER_STATUS.CONFIRMED && (
+                          <button 
+                            onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.DELIVERED)}
+                            className="px-3 py-1 bg-info hover:bg-info-focus text-info-content rounded-md text-xs cursor-pointer"
+                          >
+                            Als geliefert markieren
+                          </button>
+                        )}
+                        
+                        {order.status !== ORDER_STATUS.CANCELLED && order.status !== ORDER_STATUS.DELIVERED && (
+                          <button 
+                            onClick={() => handleUpdateStatus(order.id, ORDER_STATUS.CANCELLED)}
+                            className="px-3 py-1 bg-error hover:bg-error-focus text-error-content rounded-md text-xs cursor-pointer"
+                          >
+                            Stornieren
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            {/* Pagination */}
+            <Pagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </>
         )}
       </div>
       
@@ -215,7 +253,17 @@ const AdminOrderManager = () => {
                       <div className="flex items-center">
                         <div className="w-10 h-10 mr-3 bg-base-200 rounded overflow-hidden">
                           {item.image && (
-                            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <img 
+                              src={item.type === 'package' 
+                                ? `https://placehold.co/200x200/3B82F6/FFFFFF/png?text=${item.name.split(' ')[0]}` 
+                                : item.image}
+                              alt={item.name} 
+                              className="w-full h-full object-cover" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = `https://placehold.co/200x200/${item.type === 'package' ? '3B82F6' : '6366F1'}/FFFFFF/png?text=${item.name.split(' ')[0]}`;
+                              }}
+                            />
                           )}
                         </div>
                         <span>{item.name}</span>
