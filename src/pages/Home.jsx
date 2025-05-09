@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 
@@ -6,10 +6,16 @@ const Home = () => {
   const navigate = useNavigate();
   const { washPackages, sliderData } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const packagesRef = useRef(null);
 
   // Paket seçildiğinde rezervasyon sayfasına yönlendirme
   const handleSelectPackage = (packageId) => {
     navigate(`/booking/${packageId}`);
+  };
+
+  // Paketler bölümüne kaydırma
+  const scrollToPackages = () => {
+    packagesRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Otomatik slider değişimi
@@ -54,10 +60,10 @@ const Home = () => {
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 text-base-content bg-base-100 bg-opacity-70 opacity-70 p-4 rounded-lg">{slide.title}</h1>
                 <p className="text-xl md:text-2xl mb-8 text-base-content/70 bg-base-100 bg-opacity-70 opacity-70 p-4 rounded-lg">{slide.description}</p>
                 <button
-                  onClick={() => handleSelectPackage('standard')}
+                  onClick={scrollToPackages}
                   className="bg-primary hover:bg-primary-focus text-primary-content font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
                 >
-                  Easy Termin vereinbaren
+                  Schnell Termin vereinbaren
                 </button>
               </div>
             </div>
@@ -96,7 +102,7 @@ const Home = () => {
       </div>
 
       {/* Paketler Bölümü */}
-      <section className="py-16 bg-base-200">
+      <section ref={packagesRef} className="py-16 bg-base-200">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-base-content">Unsere Waschpakete</h2>

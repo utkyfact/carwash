@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { useAppointment } from '../context/AppointmentContext';
+import { useCart } from '../context/CartContext';
+import { useOrder } from '../context/OrderContext';
 
 // Waschpakete (Gleiche Daten wie auf der Startseite) - Hinweis: Diese Daten kommen jetzt aus dem DataContext
 const washPackages = [
@@ -56,6 +58,8 @@ const Booking = () => {
   const navigate = useNavigate();
   const { washPackages } = useData();
   const { createAppointment } = useAppointment();
+  const { cartItems, totalPrice: cartTotalPrice, clearCart } = useCart();
+  const { createOrder } = useOrder();
   const selectedPackage = washPackages.find(pkg => pkg.id === packageId) || washPackages[0];
   const datePickerRef = useRef(null);
   
@@ -71,7 +75,11 @@ const Booking = () => {
     time: '',
     paymentMethod: 'credit',
     agreeTerms: false,
+    includeCartItems: cartItems.length > 0, // Sepet ürünlerini dahil etme seçeneği
   });
+  
+  // Toplam fiyat hesaplama (paket + sepet ürünleri)
+  const totalPrice = parseFloat(selectedPackage.price) + (formData.includeCartItems ? cartTotalPrice : 0);
   
   // Fehlermeldungen
   const [errors, setErrors] = useState({});
@@ -139,8 +147,23 @@ const Booking = () => {
       return;
     }
     
-    // Termin mit AppointmentContext erstellen
+    // Termin ile AppointmentContext üzerinden randevu oluştur
     createAppointment(formData, selectedPackage.id);
+    
+    // Eğer sepet ürünleri dahil edilecekse, sipariş oluştur
+    if (formData.includeCartItems && cartItems.length > 0) {
+      const userInfo = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.carModel, // Adres bilgisi olmadığı için araç modelini kullanıyoruz
+      };
+      
+      createOrder(cartItems, userInfo, cartTotalPrice);
+      
+      // Sepeti temizle
+      clearCart();
+    }
     
     // Formular erfolgreich abgeschickt
     setIsSubmitted(true);
@@ -212,6 +235,63 @@ const Booking = () => {
             </ul>
           </div>
         </div>
+        
+        {/* Sepet Ürünleri (Eğer varsa) */}
+        {cartItems.length > 0 && (
+          <div className="bg-base-100 shadow-md rounded-lg overflow-hidden mb-8">
+            <div className="bg-secondary py-4 px-6">
+              <h2 className="text-xl font-bold text-secondary-content">Warenkorb Produkte</h2>
+              <p className="text-secondary-content mt-1">Gesamtsumme: {cartTotalPrice.toFixed(2)} €</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  id="includeCartItems"
+                  name="includeCartItems"
+                  checked={formData.includeCartItems}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      includeCartItems: e.target.checked
+                    }));
+                  }}
+                  className="w-4 h-4 text-primary cursor-pointer"
+                />
+                <label htmlFor="includeCartItems" className="ml-2 text-base-content cursor-pointer">
+                  Warenkorb zum Termin hinzufügen
+                </label>
+              </div>
+              
+              {formData.includeCartItems && (
+                <div className="space-y-3 mb-4">
+                  <h3 className="font-medium mb-2">Warenkorb Produkte:</h3>
+                  {cartItems.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center border-b border-base-200 pb-2">
+                      <div className="flex items-center">
+                        <img 
+                          src={item.image} 
+                          alt={item.name} 
+                          className="w-12 h-12 object-cover rounded-md mr-3"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://via.placeholder.com/50';
+                          }}
+                        />
+                        <div>
+                          <p className="font-medium">{item.name}</p>
+                          <p className="text-sm text-base-content/70">{item.quantity} x {item.price.toFixed(2)} €</p>
+                        </div>
+                      </div>
+                      <p className="font-medium">{(item.price * item.quantity).toFixed(2)} €</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         <div className="bg-base-100 shadow-md rounded-lg overflow-hidden">
           <div className="p-6">
@@ -346,7 +426,7 @@ const Booking = () => {
               
               <div className="flex justify-between items-center">
                 <div className="text-xl font-bold">
-                  Gesamt: {selectedPackage.price} €
+                  Gesamt: {totalPrice.toFixed(2)} €
                 </div>
                 <button
                   type="submit"
