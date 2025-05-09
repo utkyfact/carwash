@@ -8,9 +8,9 @@ function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     {/* Logo ve Hakkında */}
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center">
                             <img src="/wolkeLogoTransparent.png" alt="Wolke Carwash Logo" className="w-20 h-20 rounded-full" />
-                            <h2 className="font-bold text-2xl mb-4 text-primary">Wolke Carwash</h2>
+                            <h2 className="font-bold text-2xl mt-5 text-primary">Carwash</h2>
                         </div>
 
                         <p className="opacity-75 mb-4">

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
+import { useData } from '../context/DataContext';
 
 const Cart = () => {
   const { 
@@ -11,10 +12,12 @@ const Cart = () => {
     decreaseQuantity, 
     removeFromCart, 
     totalPrice,
-    clearCart
+    clearCart,
+    addToCart
   } = useCart();
   
   const { createOrder } = useOrder();
+  const { washPackages } = useData();
   
   // Kullanıcı bilgileri için state
   const [isCheckout, setIsCheckout] = useState(false);
@@ -25,6 +28,15 @@ const Cart = () => {
     address: ''
   });
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [showPackageSelect, setShowPackageSelect] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState('');
+  const [existingPackageInCart, setExistingPackageInCart] = useState(null);
+
+  // Sepette paket var mı kontrol et
+  useEffect(() => {
+    const packageItem = cartItems.find(item => item.type === 'package');
+    setExistingPackageInCart(packageItem);
+  }, [cartItems]);
   
   // Form değişiklikleri
   const handleInputChange = (e) => {
@@ -55,6 +67,40 @@ const Cart = () => {
       setOrderSuccess(false);
       toggleCart();
     }, 3000);
+  };
+
+  // Paket select'i göster/gizle
+  const togglePackageSelect = () => {
+    if (!existingPackageInCart) {
+      setShowPackageSelect(!showPackageSelect);
+    }
+  };
+
+  // Paket seçimi değiştiğinde
+  const handlePackageChange = (e) => {
+    setSelectedPackageId(e.target.value);
+  };
+
+  // Paketi sepete ekle
+  const handleAddPackageToCart = () => {
+    if (!selectedPackageId) return;
+    
+    const selectedPackage = washPackages.find(pkg => pkg.id === selectedPackageId);
+    if (selectedPackage) {
+      // Sepete eklenecek paket formatı
+      const packageToAdd = {
+        id: selectedPackage.id,
+        name: `${selectedPackage.name} Paket`,
+        price: parseFloat(selectedPackage.price),
+        image: `https://placehold.co/200x200/3B82F6/FFFFFF/png?text=${selectedPackage.name}`, 
+        type: 'package',
+        features: selectedPackage.features
+      };
+      
+      addToCart(packageToAdd);
+      setSelectedPackageId('');
+      setShowPackageSelect(false);
+    }
   };
   
   return (
@@ -149,6 +195,52 @@ const Cart = () => {
           ) : (
             /* Sepet İçeriği */
             <div className="flex-grow overflow-y-auto p-4">
+              {/* Paket Ekleme Bölümü */}
+              {!isCheckout && (
+                <div className="mb-4 border-b border-base-200 pb-4">
+                  <div 
+                    onClick={togglePackageSelect} 
+                    className={`flex items-center justify-between ${existingPackageInCart ? 'text-base-300 cursor-not-allowed' : 'text-primary hover:text-primary-focus cursor-pointer'}`}
+                  >
+                    <span className="font-medium">
+                      {existingPackageInCart 
+                        ? `${existingPackageInCart.name} sepetinizde` 
+                        : "Waschpaket hinzufügen"
+                      }
+                    </span>
+                    {!existingPackageInCart && (
+                      <svg className={`w-5 h-5 transition-transform ${showPackageSelect ? 'transform rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    )}
+                  </div>
+                  
+                  {showPackageSelect && !existingPackageInCart && (
+                    <div className="mt-3">
+                      <select 
+                        value={selectedPackageId} 
+                        onChange={handlePackageChange}
+                        className="w-full px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                      >
+                        <option value="">Paket auswählen</option>
+                        {washPackages.map(pkg => (
+                          <option key={pkg.id} value={pkg.id}>
+                            {pkg.name} - {pkg.price}€
+                          </option>
+                        ))}
+                      </select>
+                      <button 
+                        onClick={handleAddPackageToCart}
+                        disabled={!selectedPackageId}
+                        className="mt-2 w-full py-2 bg-primary text-primary-content rounded-md hover:bg-primary-focus transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Zum Warenkorb hinzufügen
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {cartItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full">
                   <svg className="w-16 h-16 text-base-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -168,9 +260,15 @@ const Cart = () => {
                     <div key={`${item.id}-${item.addedAt}`} className="border-b border-base-200 py-4 flex">
                       <div className="w-20 h-20 bg-base-200 rounded-md overflow-hidden flex-shrink-0">
                         <img 
-                          src={item.image} 
+                          src={item.type === 'package' 
+                            ? `https://placehold.co/200x200/3B82F6/FFFFFF/png?text=${item.name.split(' ')[0]}` 
+                            : item.image}
                           alt={item.name}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = `https://placehold.co/200x200/${item.type === 'package' ? '3B82F6' : '6366F1'}/FFFFFF/png?text=${item.name.split(' ')[0]}`;
+                          }}
                         />
                       </div>
                       <div className="ml-4 flex-grow">
@@ -188,26 +286,28 @@ const Cart = () => {
                         <p className="text-primary font-semibold mt-1">
                           {item.price} €
                         </p>
-                        <div className="flex items-center mt-2">
-                          <span className="text-sm text-base-content mr-2">Menge:</span>
-                          <div className="flex items-center border border-base-300 rounded">
-                            <button 
-                              onClick={() => decreaseQuantity(item.id, item.addedAt)}
-                              className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <span className="w-8 text-center text-base-content">
-                              {item.quantity}
-                            </span>
-                            <button 
-                              onClick={() => increaseQuantity(item.id, item.addedAt)}
-                              className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
-                            >
-                              +
-                            </button>
+                        {item.type !== 'package' && (
+                          <div className="flex items-center mt-2">
+                            <span className="text-sm text-base-content mr-2">Menge:</span>
+                            <div className="flex items-center border border-base-300 rounded">
+                              <button 
+                                onClick={() => decreaseQuantity(item.id, item.addedAt)}
+                                className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
+                              >
+                                -
+                              </button>
+                              <span className="w-8 text-center text-base-content">
+                                {item.quantity}
+                              </span>
+                              <button 
+                                onClick={() => increaseQuantity(item.id, item.addedAt)}
+                                className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
+                              >
+                                +
+                              </button>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                   ))}
