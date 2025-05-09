@@ -57,7 +57,7 @@ const Home = () => {
                   onClick={() => handleSelectPackage('standard')}
                   className="bg-primary hover:bg-primary-focus text-primary-content font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
                 >
-                  Jetzt Termin vereinbaren
+                  Easy Termin vereinbaren
                 </button>
               </div>
             </div>
