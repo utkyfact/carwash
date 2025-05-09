@@ -110,24 +110,26 @@ const Cart = () => {
     // Paket ürünlerini ve normal ürünleri ayır
     const packageItems = cartItems.filter(item => item.type === 'package');
     
-    // Sipariş oluştur
+    // Önce sipariş oluştur
     createOrder(cartItems, userInfo, totalPrice);
     
-    // Paket ürünlerini randevu olarak ekle
-    packageItems.forEach(packageItem => {
-      const packageData = {
-        name: userInfo.name,
-        email: userInfo.email,
-        phone: userInfo.phone,
-        carModel: "Sipariş üzerinden eklendi", // Araç modeli bilgisi olmadığı için varsayılan bir değer
-        date: packageItem.appointmentDate,
-        time: packageItem.appointmentTime,
-        agreeTerms: true
-      };
-      
-      // Randevu oluştur
-      createAppointment(packageData, packageItem.id);
-    });
+    // Paket ürünlerini randevu olarak ekle (setTimeout içinde çalıştırarak render döngüsünden çıkar)
+    setTimeout(() => {
+      packageItems.forEach(packageItem => {
+        const packageData = {
+          name: userInfo.name,
+          email: userInfo.email,
+          phone: userInfo.phone,
+          carModel: "Sipariş üzerinden eklendi", // Araç modeli bilgisi olmadığı için varsayılan bir değer
+          date: packageItem.appointmentDate,
+          time: packageItem.appointmentTime,
+          agreeTerms: true
+        };
+        
+        // Randevu oluştur
+        createAppointment(packageData, packageItem.id);
+      });
+    }, 0);
     
     // Sepeti temizle ve başarılı mesajını göster
     clearCart();
