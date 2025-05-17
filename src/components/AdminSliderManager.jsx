@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useData } from "../context/DataContext";
+import { useData } from '../redux/compat/DataContextCompat';
 import ConfirmationModal from "./ConfirmationModal";
 
 const defaultSlide = {

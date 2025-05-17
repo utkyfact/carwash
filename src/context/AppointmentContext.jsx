@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useData } from './DataContext';
+import { useData } from '../redux/compat/DataContextCompat';
 
 // Context oluştur
 const AppointmentContext = createContext();

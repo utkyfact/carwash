@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useCart } from '../context/CartContext';
-import { useOrder } from '../context/OrderContext';
-import { useData } from '../context/DataContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  addToCart,
+  removeFromCart,
+  increaseQuantity,
+  decreaseQuantity,
+  clearCart,
+  toggleCart,
+  selectCartItems,
+  selectIsCartOpen,
+  selectTotalPrice
+} from '../redux/features/cartSlice';
+import { useOrder } from '../redux/compat/OrderContextCompat';
+import { useData } from '../redux/compat/DataContextCompat';
 import { useAppointment } from '../context/AppointmentContext';
 
 // Verfügbare Zeiten erstellen (9:00 - 19:00 Uhr, in 30-Minuten-Intervallen)
@@ -21,17 +32,11 @@ const generateAvailableTimes = () => {
 };
 
 const Cart = () => {
-  const { 
-    cartItems, 
-    isCartOpen, 
-    toggleCart, 
-    increaseQuantity, 
-    decreaseQuantity, 
-    removeFromCart, 
-    totalPrice,
-    clearCart,
-    addToCart
-  } = useCart();
+  // Redux state ve actions
+  const dispatch = useDispatch();
+  const cartItems = useSelector(selectCartItems);
+  const isCartOpen = useSelector(selectIsCartOpen);
+  const totalPrice = useSelector(selectTotalPrice);
   
   const { createOrder } = useOrder();
   const { createAppointment } = useAppointment();
@@ -132,7 +137,7 @@ const Cart = () => {
     }, 0);
     
     // Sepeti temizle ve başarılı mesajını göster
-    clearCart();
+    dispatch(clearCart());
     setIsCheckout(false);
     setOrderSuccess(true);
     
@@ -142,7 +147,7 @@ const Cart = () => {
     // 3 saniye sonra başarılı mesajını kapat
     setTimeout(() => {
       setOrderSuccess(false);
-      toggleCart();
+      dispatch(toggleCart());
     }, 3000);
   };
 
@@ -151,6 +156,11 @@ const Cart = () => {
     if (!existingPackageInCart) {
       setShowPackageSelect(!showPackageSelect);
     }
+  };
+
+  // Sepeti aç/kapat
+  const handleToggleCart = () => {
+    dispatch(toggleCart());
   };
 
   // Paket seçimi değiştiğinde
@@ -191,7 +201,7 @@ const Cart = () => {
         appointmentTime: selectedTime
       };
       
-      addToCart(packageToAdd);
+      dispatch(addToCart({ product: packageToAdd }));
       setSelectedPackageId('');
       setSelectedDate('');
       setSelectedTime('');
@@ -264,7 +274,7 @@ const Cart = () => {
               <select
                 value={selectedTime}
                 onChange={handleTimeChange}
-                className="w-full bg-base-100 px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
+                className="w-full px-3 py-2 border border-base-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="">Bitte wählen</option>
                 {availableTimes.map(time => (
@@ -284,7 +294,7 @@ const Cart = () => {
       {isCartOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={toggleCart}
+          onClick={handleToggleCart}
         ></div>
       )}
       
@@ -297,7 +307,7 @@ const Cart = () => {
               {isCheckout ? 'Bestellung abschließen' : 'Ihr Warenkorb'}
             </h2>
             <button 
-              onClick={toggleCart}
+              onClick={handleToggleCart}
               className="text-primary-content hover:text-accent focus:outline-none cursor-pointer"
               aria-label="Warenkorb schließen"
             >
@@ -413,7 +423,7 @@ const Cart = () => {
                   </svg>
                   <p className="text-base-content mb-2">Ihr Warenkorb ist leer</p>
                   <button 
-                    onClick={toggleCart}
+                    onClick={handleToggleCart}
                     className="text-sm text-primary hover:underline cursor-pointer"
                   >
                     Mit dem Einkaufen beginnen
@@ -440,7 +450,7 @@ const Cart = () => {
                         <div className="flex justify-between">
                           <h3 className="font-medium text-base-content">{item.name}</h3>
                           <button 
-                            onClick={() => removeFromCart(item.id, item.addedAt)}
+                            onClick={() => dispatch(removeFromCart({ productId: item.id, addedAt: item.addedAt }))}
                             className="text-base-content opacity-50 hover:opacity-100 cursor-pointer"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -461,7 +471,7 @@ const Cart = () => {
                             <span className="text-sm text-base-content mr-2">Menge:</span>
                             <div className="flex items-center border border-base-300 rounded">
                               <button 
-                                onClick={() => decreaseQuantity(item.id, item.addedAt)}
+                                onClick={() => dispatch(decreaseQuantity({ productId: item.id, addedAt: item.addedAt }))}
                                 className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
                               >
                                 -
@@ -470,7 +480,7 @@ const Cart = () => {
                                 {item.quantity}
                               </span>
                               <button 
-                                onClick={() => increaseQuantity(item.id, item.addedAt)}
+                                onClick={() => dispatch(increaseQuantity({ productId: item.id, addedAt: item.addedAt }))}
                                 className="w-8 h-8 flex items-center justify-center text-base-content hover:bg-base-200 cursor-pointer"
                               >
                                 +
@@ -523,7 +533,7 @@ const Cart = () => {
                     Bestellen
                   </button>
                   <button 
-                    onClick={toggleCart}
+                    onClick={handleToggleCart}
                     className="w-full py-2 border border-base-300 text-base-content rounded-md hover:bg-base-200 transition-colors cursor-pointer"
                   >
                     Einkauf fortsetzen

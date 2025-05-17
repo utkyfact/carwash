@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Routes, Route, useNavigate } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
 import Header from "./components/Header"
 import Home from "./pages/Home"
 import Booking from "./pages/Booking"
@@ -9,24 +9,25 @@ import ProductDetail from './pages/ProductDetail'
 import About from './pages/About'
 import Cart from './components/Cart'
 import Footer from './components/Footer'
-import { DataProvider } from "./context/DataContext"
-import { CartProvider } from "./context/CartContext"
-import { ThemeProvider } from "./context/ThemeContext"
-import { OrderProvider } from "./context/OrderContext"
+import { DataProvider } from "./redux/compat/DataContextCompat"
+import { OrderProvider } from "./redux/compat/OrderContextCompat"
 import { AppointmentProvider } from "./context/AppointmentContext"
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Provider } from 'react-redux'
+import store from './redux/store'
+import { ThemeProvider } from "./context/ThemeContext"
 
 function App() {
-  // Admin kimlik doğrulama durumu için hala state kullanıyoruz
+  // Admin kimlik doğrulama durumu için state kullanıyoruz
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
-    <ThemeProvider>
-      <DataProvider>
-        <OrderProvider>
-          <AppointmentProvider>
-            <CartProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <DataProvider>
+          <OrderProvider>
+            <AppointmentProvider>
               <div className="min-h-screen bg-base-100 text-base-content flex flex-col">
                 {/* Toast bildirimleri için container */}
                 <ToastContainer
@@ -80,11 +81,11 @@ function App() {
                 
                 <Footer />
               </div>
-            </CartProvider>
-          </AppointmentProvider>
-        </OrderProvider>
-      </DataProvider>
-    </ThemeProvider>
+            </AppointmentProvider>
+          </OrderProvider>
+        </DataProvider>
+      </ThemeProvider>
+    </Provider>
   )
 }
 

@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTotalItems, toggleCart } from '../redux/features/cartSlice';
 import { useTheme } from '../context/ThemeContext';
 
 const Header = ({ isAuthenticated }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
-  const { totalItems, toggleCart } = useCart();
+  const totalItems = useSelector(selectTotalItems);
+  const dispatch = useDispatch();
   const { theme, changeTheme, getAllThemes } = useTheme();
   const mobileThemeMenuRef = useRef(null);
   const desktopThemeMenuRef = useRef(null);
@@ -52,6 +54,11 @@ const Header = ({ isAuthenticated }) => {
 
   // Tüm temalar
   const allThemes = getAllThemes();
+
+  // Sepeti aç/kapat
+  const handleToggleCart = () => {
+    dispatch(toggleCart());
+  };
 
   return (
     <header className="bg-base-100 text-base-content shadow-md">
@@ -109,7 +116,7 @@ const Header = ({ isAuthenticated }) => {
 
             {/* Sepet butonu (mobil) */}
             <button
-              onClick={toggleCart}
+              onClick={handleToggleCart}
               className="relative mr-4 p-1 cursor-pointer"
               aria-label="Warenkorb"
             >
@@ -209,7 +216,7 @@ const Header = ({ isAuthenticated }) => {
 
             {/* Sepet butonu */}
             <button
-              onClick={toggleCart}
+              onClick={handleToggleCart}
               className="relative p-1 text-base-content hover:text-primary cursor-pointer"
               aria-label="Warenkorb"
             >

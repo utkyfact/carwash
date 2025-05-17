@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useData } from '../context/DataContext';
+import { useData } from '../redux/compat/DataContextCompat';
 
 // Mock veri oluşturma fonksiyonları
 const generateDailyData = () => {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useOrder } from '../context/OrderContext';
+import { useOrder } from '../redux/compat/OrderContextCompat';
 import Pagination from './Pagination';
 
 const AdminOrderManager = () => {

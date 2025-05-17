@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useData } from '../context/DataContext';
+import { useData } from '../redux/compat/DataContextCompat';
 import AdminSliderManager from '../components/AdminSliderManager';
 import AdminPackageManager from '../components/AdminPackageManager';
 import AdminProductManager from '../components/AdminProductManager';

@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { useData } from '../context/DataContext';
-import { useCart } from '../context/CartContext';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/features/cartSlice';
+import { useData } from '../redux/compat/DataContextCompat';
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const { productData } = useData();
-  const { addToCart } = useCart();
+  const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,7 +78,7 @@ const ProductDetail = () => {
   
   // Produkt zum Warenkorb hinzufügen
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    dispatch(addToCart({ product, quantity }));
     setAddedToCart(true);
     
     // Nachricht nach 3 Sekunden entfernen
@@ -145,10 +146,10 @@ const ProductDetail = () => {
                 </a>
               </div>
               
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">{product.name}</h1>
+              <h1 className="text-3xl font-bold text-base-content mb-2">{product.name}</h1>
               
               <div className="flex items-center mb-4">
-                <span className="bg-blue-100 text-blue-800 text-xl font-bold px-4 py-1 rounded-full">
+                <span className="bg-base-content text-base-100 text-xl font-bold px-4 py-1 rounded-full">
                   {product.price} €
                 </span>
                 <span className={`ml-4 text-sm px-3 py-1 rounded-full ${
@@ -160,16 +161,16 @@ const ProductDetail = () => {
                 </span>
               </div>
               
-              <p className="text-gray-600 mb-6 text-lg">{product.description}</p>
+              <p className="text-base-content mb-6 text-lg">{product.description}</p>
               
               {product.stock > 0 ? (
                 <>
                   <div className="flex items-center mb-6">
-                    <span className="text-gray-700 mr-4">Menge:</span>
-                    <div className="flex items-center border border-gray-300 rounded-md">
+                    <span className="text-base-content mr-4">Menge:</span>
+                    <div className="flex items-center border border-base-content rounded-md">
                       <button 
                         onClick={decreaseQuantity}
-                        className="px-3 py-1 text-gray-600 hover:bg-gray-100 cursor-pointer"
+                        className="px-3 py-1 text-base-content hover:bg-base-content/10 cursor-pointer"
                       >
                         -
                       </button>
@@ -193,7 +194,7 @@ const ProductDetail = () => {
                   <div className="relative">
                     <button 
                       onClick={handleAddToCart}
-                      className={`w-full ${addedToCart ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'} text-white py-3 rounded-md transition-colors flex items-center justify-center`}
+                      className={`w-full ${addedToCart ? 'bg-green-600 hover:bg-green-700' : 'bg-base-content hover:bg-base-content/80'} text-base-100 py-3 rounded-md transition-colors flex items-center justify-center cursor-pointer`}
                     >
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -202,7 +203,7 @@ const ProductDetail = () => {
                     </button>
                     
                     {addedToCart && (
-                      <div className="absolute left-0 right-0 -bottom-10 bg-green-100 text-green-800 text-center py-2 rounded-md text-sm">
+                      <div className="absolute left-0 right-0 -bottom-10 bg-base-content text-base-100 text-center py-2 rounded-md text-sm">
                         Produkt wurde zum Warenkorb hinzugefügt! ✓
                       </div>
                     )}
@@ -210,7 +211,7 @@ const ProductDetail = () => {
                 </>
               ) : (
                 <button 
-                  className="w-full bg-gray-400 text-white py-3 rounded-md cursor-not-allowed"
+                  className="w-full bg-base-content text-base-100 py-3 rounded-md cursor-not-allowed"
                   disabled
                 >
                   Produkt ausverkauft
@@ -219,19 +220,19 @@ const ProductDetail = () => {
               
               {/* Produktdetails */}
               <div className="mt-8 border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Produktdetails</h3>
+                <h3 className="text-lg font-semibold text-base-content mb-3">Produktdetails</h3>
                 <ul className="space-y-2">
                   <li className="flex">
-                    <span className="text-gray-500 w-1/3">Produktcode:</span>
-                    <span className="text-gray-800">{product.id}</span>
+                    <span className="text-base-content w-1/3">Produktcode:</span>
+                    <span className="text-base-content">{product.id}</span>
                   </li>
                   <li className="flex">
-                    <span className="text-gray-500 w-1/3">Lagerstatus:</span>
-                    <span className="text-gray-800">{product.stock > 0 ? 'Auf Lager' : 'Ausverkauft'}</span>
+                    <span className="text-base-content w-1/3">Lagerstatus:</span>
+                    <span className="text-base-content">{product.stock > 0 ? 'Auf Lager' : 'Ausverkauft'}</span>
                   </li>
                   <li className="flex">
-                    <span className="text-gray-500 w-1/3">Kategorie:</span>
-                    <span className="text-gray-800">Autopflegeprodukte</span>
+                    <span className="text-base-content w-1/3">Kategorie:</span>
+                    <span className="text-base-content">Autopflegeprodukte</span>
                   </li>
                 </ul>
               </div>

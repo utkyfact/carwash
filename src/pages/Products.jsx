@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useData } from '../context/DataContext';
-import { useCart } from '../context/CartContext';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/features/cartSlice';
+import { useData } from '../redux/compat/DataContextCompat';
 
 const Products = ({ onSelectProduct }) => {
   const { productData } = useData();
-  const { addToCart } = useCart();
+  const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   
@@ -27,7 +28,7 @@ const Products = ({ onSelectProduct }) => {
   // Zum Warenkorb hinzufügen
   const handleAddToCart = (e, product) => {
     e.stopPropagation(); // Verhindert Klick auf Produktkarte
-    addToCart(product, 1);
+    dispatch(addToCart({ product, quantity: 1 }));
   };
   
   return (

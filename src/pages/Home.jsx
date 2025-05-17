@@ -1,12 +1,34 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useData } from '../context/DataContext';
+import { useData } from '../redux/compat/DataContextCompat';
+import { FaArrowRightLong } from "react-icons/fa6";
 
 const Home = () => {
   const navigate = useNavigate();
   const { washPackages, sliderData } = useData();
   const [currentSlide, setCurrentSlide] = useState(0);
   const packagesRef = useRef(null);
+  const productLinkRef = useRef(null);
+  const [isLinkVisible, setIsLinkVisible] = useState(false);
+  const [visiblePackages, setVisiblePackages] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Ekran boyutunu kontrol et
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // İlk kontrol
+    checkMobile();
+    
+    // Ekran boyutu değiştiğinde kontrol et
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
 
   // Paket seçildiğinde rezervasyon sayfasına yönlendirme
   const handleSelectPackage = (packageId) => {
@@ -25,6 +47,41 @@ const Home = () => {
     }, 5000);
     return () => clearInterval(interval);
   }, [sliderData.length]);
+
+  // Link animasyonu için Scroll olayı
+  useEffect(() => {
+    const handleScroll = () => {
+      // Sayfanın ortasına geldiğinde link'i görünür yap
+      if (window.scrollY > 300) {
+        setIsLinkVisible(true);
+      } else {
+        setIsLinkVisible(false);
+      }
+
+      // Paketler bölümü görünür olduğunda paketleri göster
+      if (packagesRef.current) {
+        const packagesPosition = packagesRef.current.getBoundingClientRect().top;
+        const screenPosition = window.innerHeight / 1.3;
+        
+        if (packagesPosition < screenPosition) {
+          // Tüm paketleri sırayla görünür yap
+          const timer = setTimeout(() => {
+            setVisiblePackages(washPackages.map(pkg => pkg.id));
+          }, 100);
+          return () => clearTimeout(timer);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    // İlk yükleme için kontrol et
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [washPackages]);
 
   // Manuel slider değişimi
   const goToSlide = (index) => {
@@ -59,12 +116,20 @@ const Home = () => {
               <div className="text-center text-base-100 max-w-3xl px-6">
                 <h1 className="text-4xl md:text-5xl font-bold mb-4 text-base-content bg-base-100 bg-opacity-70 opacity-70 p-4 rounded-lg">{slide.title}</h1>
                 <p className="text-xl md:text-2xl mb-8 text-base-content/70 bg-base-100 bg-opacity-70 opacity-70 p-4 rounded-lg">{slide.description}</p>
-                <button
-                  onClick={scrollToPackages}
-                  className="bg-primary hover:bg-primary-focus text-primary-content font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
-                >
-                  Schnell Termin vereinbaren
-                </button>
+                {/* <div className="flex flex-col justify-center items-center gap-4">
+                  <button
+                    onClick={scrollToPackages}
+                    className="bg-base-content hover:bg-base-content/80 text-base-100 font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
+                  >
+                    Schnell Termin vereinbaren
+                  </button
+                  <Link
+                    to="/products"
+                    className="bg-base-content hover:bg-base-content/80 text-base-100 font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
+                  >
+                    Unsere Produkte
+                  </Link>
+                </div> */}
               </div>
             </div>
           </div>
@@ -102,16 +167,42 @@ const Home = () => {
       </div>
 
       {/* Paketler Bölümü */}
-      <section ref={packagesRef} className="py-16 bg-base-200">
+      <section ref={packagesRef} className="py-8 bg-base-200">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-base-content">Unsere Waschpakete</h2>
+            {/* <h2 className="text-3xl font-bold text-base-content">Unsere Waschpakete</h2> */}
+            <button
+              onClick={scrollToPackages}
+              className="bg-base-content hover:bg-base-content/80 text-base-100 font-bold py-3 px-8 rounded-full transition-colors text-lg cursor-pointer"
+            >
+              Unsere Waschpakete
+            </button>
             <p className="text-base-content/70 mt-2">Wählen Sie das beste Paket für Ihr Fahrzeug</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {washPackages.map((pkg) => (
-              <div key={pkg.id} className="bg-base-100 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform">
+            {washPackages.map((pkg, index) => (
+              <div 
+                key={pkg.id} 
+                className={`bg-base-100 rounded-lg shadow-lg overflow-hidden transition-all duration-500 hover:scale-105 ${
+                  visiblePackages.includes(pkg.id) 
+                    ? 'opacity-100' 
+                    : 'opacity-0'
+                } ${
+                  isMobile
+                    ? visiblePackages.includes(pkg.id)
+                      ? 'translate-x-0'
+                      : index % 2 === 0 
+                        ? '-translate-x-full' 
+                        : 'translate-x-full'
+                    : visiblePackages.includes(pkg.id)
+                      ? 'translate-y-0 animate-bounce-once'
+                      : 'translate-y-10'
+                }`}
+                style={{
+                  transitionDelay: `${index * 150}ms`
+                }}
+              >
                 <div className={`${pkg.color} text-white py-4 text-center`}>
                   <h3 className="text-xl font-bold">{pkg.name}</h3>
                   <div className="text-3xl font-bold mt-2">{pkg.price} €</div>
@@ -138,6 +229,21 @@ const Home = () => {
             ))}
           </div>
         </div>
+        <div className="container mx-auto px-4 relative overflow-visible py-8">
+          <Link
+            to="/products"
+            className={`text-primary hover:text-base-content font-bold py-4 px-8 transition-all duration-1000 ease-out text-lg cursor-pointer flex items-center justify-end gap-2 mt-3 ${
+              isLinkVisible 
+                ? 'opacity-100 translate-x-0' 
+                : 'opacity-0 -translate-x-full'
+            }`}
+            ref={productLinkRef}
+          >
+            Unsere Produkte
+            <FaArrowRightLong />
+          </Link>
+        </div>
+
       </section>
 
       {/* Neden Bizi Seçmelisiniz */}

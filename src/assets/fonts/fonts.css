@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Racing+Sans+One&display=swap');
+
+:root {
+  --font-primary: 'Montserrat', sans-serif;
+  --font-secondary: 'Rajdhani', sans-serif;
+  --font-display: 'Racing Sans One', cursive;
+}
+
+/* Font uygulamaları */
+body {
+  font-family: var(--font-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-secondary);
+  font-weight: 600;
+}
+
+.display-title, 
+.logo-text,
+.hero-text {
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-family: var(--font-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn, 
+.cta-text {
+  font-family: var(--font-secondary);
+  font-weight: 700;
+  letter-spacing: 1px;
+} 

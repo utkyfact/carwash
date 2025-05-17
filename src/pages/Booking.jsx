@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useData } from '../context/DataContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectCartItems, selectTotalPrice, clearCart } from '../redux/features/cartSlice';
+import { useData } from '../redux/compat/DataContextCompat';
 import { useAppointment } from '../context/AppointmentContext';
-import { useCart } from '../context/CartContext';
-import { useOrder } from '../context/OrderContext';
+import { useOrder } from '../redux/compat/OrderContextCompat';
 
 // Waschpakete (Gleiche Daten wie auf der Startseite) - Hinweis: Diese Daten kommen jetzt aus dem DataContext
 const washPackages = [
@@ -56,9 +57,11 @@ const generateAvailableTimes = () => {
 const Booking = () => {
   const { packageId } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { washPackages } = useData();
   const { createAppointment } = useAppointment();
-  const { cartItems, totalPrice: cartTotalPrice, clearCart } = useCart();
+  const cartItems = useSelector(selectCartItems);
+  const cartTotalPrice = useSelector(selectTotalPrice);
   const { createOrder } = useOrder();
   const selectedPackage = washPackages.find(pkg => pkg.id === packageId) || washPackages[0];
   const datePickerRef = useRef(null);
@@ -162,7 +165,7 @@ const Booking = () => {
       createOrder(cartItems, userInfo, cartTotalPrice);
       
       // Sepeti temizle
-      clearCart();
+      dispatch(clearCart());
     }
     
     // Formular erfolgreich abgeschickt
