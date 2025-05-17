@@ -10,25 +10,7 @@ const Home = () => {
   const packagesRef = useRef(null);
   const productLinkRef = useRef(null);
   const [isLinkVisible, setIsLinkVisible] = useState(false);
-  const [visiblePackages, setVisiblePackages] = useState([]);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Ekran boyutunu kontrol et
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    // İlk kontrol
-    checkMobile();
-    
-    // Ekran boyutu değiştiğinde kontrol et
-    window.addEventListener('resize', checkMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, []);
+    const [visiblePackages, setVisiblePackages] = useState([]);
 
   // Paket seçildiğinde rezervasyon sayfasına yönlendirme
   const handleSelectPackage = (packageId) => {
@@ -186,18 +168,8 @@ const Home = () => {
                 key={pkg.id} 
                 className={`bg-base-100 rounded-lg shadow-lg overflow-hidden transition-all duration-500 hover:scale-105 ${
                   visiblePackages.includes(pkg.id) 
-                    ? 'opacity-100' 
-                    : 'opacity-0'
-                } ${
-                  isMobile
-                    ? visiblePackages.includes(pkg.id)
-                      ? 'translate-x-0'
-                      : index % 2 === 0 
-                        ? '-translate-x-full' 
-                        : 'translate-x-full'
-                    : visiblePackages.includes(pkg.id)
-                      ? 'translate-y-0 animate-bounce-once'
-                      : 'translate-y-10'
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-10'
                 }`}
                 style={{
                   transitionDelay: `${index * 150}ms`

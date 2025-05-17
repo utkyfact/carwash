@@ -96,12 +96,12 @@ const Header = ({ isAuthenticated }) => {
                       </svg>
                     </button>
                   </div>
-                  <div className="grid grid-cols-1">
+                  <div className="grid grid-cols-2">
                     {allThemes.map((themeName) => (
                       <button
                         key={themeName}
                         onClick={() => handleThemeChange(themeName)}
-                        className={`w-full text-left block px-4 py-2 text-sm ${theme === themeName
+                        className={`w-full text-left block px-4 py-3 text-sm ${theme === themeName
                             ? 'bg-primary/10 text-primary font-medium'
                             : 'text-base-content hover:bg-base-200'
                           } cursor-pointer`}
@@ -196,7 +196,7 @@ const Header = ({ isAuthenticated }) => {
                       </svg>
                     </button>
                   </div>
-                  <div className="grid grid-cols-1">
+                  <div className="grid grid-cols-2 md:grid-cols-1">
                     {allThemes.map((themeName) => (
                       <button
                         key={themeName}
